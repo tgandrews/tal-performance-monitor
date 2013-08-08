@@ -1,4 +1,4 @@
-package main 
+package main
 
 import (
 	"log"
@@ -19,6 +19,5 @@ func main() {
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	url := r.URL
 	log.Printf("URL requested: %s?%s", url.Path, url.RawQuery)
-	s := stat.Stat{}
-	s.FromRequest(r)
+	stat := stat.FromRequest(r)
 }
