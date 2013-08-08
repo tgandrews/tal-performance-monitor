@@ -7,6 +7,11 @@ import (
 	"strconv"
 )
 
+const (
+	BASE_TEN int = 10
+	INTEGER_BIT_SIZE int = 64
+)
+
 type Stat struct {
 	Name      string
 	Value     int
@@ -25,7 +30,7 @@ func FromRequest(request *http.Request) (s Stat) {
 
 		s.Name = "onload"
 		rawValue := queryParameters[name][0]
-		parsedInt, err := strconv.ParseInt(rawValue, 10, 64)
+		parsedInt, err := strconv.ParseInt(rawValue, BASE_TEN, INTEGER_BIT_SIZE)
 		if err != nil {
 			log.Print(err)
 		}
