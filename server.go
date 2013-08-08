@@ -2,8 +2,19 @@ package main
 
 import (
 	"log"
+	"net/http"
+	"strconv"
 )
 
 func main() {
-	log.Print("Hello world :)")
+	port := 3000
+	convertedPort := ":" + strconv.Itoa(port)
+	log.Printf("Starting server on port %s", convertedPort)
+	http.HandleFunc("/", handleRequest)
+	log.Fatal(http.ListenAndServe(convertedPort, nil))
+}
+
+func handleRequest(w http.ResponseWriter, r *http.Request) {
+	url := r.URL
+	log.Printf("URL requested: %s?%s", url.Path, url.RawQuery)
 }
