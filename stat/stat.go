@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"fmt"
 )
 
 const (
@@ -16,7 +17,6 @@ type Stat struct {
 	Name      string
 	Value     int
 	UserAgent string
-	IpAddr    string
 }
 
 func FromRequest(request *http.Request) (s Stat) {
@@ -37,4 +37,8 @@ func FromRequest(request *http.Request) (s Stat) {
 		s.Value = int(parsedInt)
 	}
 	return s
+}
+
+func (s *Stat) String() (string) {
+	return fmt.Sprintf("Name: %s\r\nValue: %d\r\nUser Agent: %s", s.Name, s.Value, s.UserAgent)
 }

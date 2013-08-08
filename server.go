@@ -17,7 +17,6 @@ func main() {
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
-	url := r.URL
-	log.Printf("URL requested: %s?%s", url.Path, url.RawQuery)
 	stat := stat.FromRequest(r)
+	log.Println(stat.String())
 }

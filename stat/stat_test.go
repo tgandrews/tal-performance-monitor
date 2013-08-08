@@ -39,6 +39,17 @@ func TestValueComesFromTheQueryStringValue (t *testing.T) {
 	}
 }
 
+func TestStringReturnsTheExpectedResult (t *testing.T) {
+	request := buildRequest(t)
+	stat :=  FromRequest(request)
+
+	expectedString := "Name: onload\r\nValue: 200\r\nUser Agent: Dummy;user;agent"
+	result := stat.String()
+	if (stat.String() != expectedString) {
+		t.Fatalf("Expected %s but found %s", expectedString, result)
+	}
+}
+
 func buildRequest(t *testing.T) (*http.Request) {
 	request := new (http.Request)
 	header := http.Header{}
