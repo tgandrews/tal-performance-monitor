@@ -22,13 +22,25 @@
 	var statEvents = {
 		registerCallbacksForStatistics: function () {
 			this.windowOnLoad();
-			this.applicationStart();
+			this.requireReady();
 		},
 		windowOnLoad: function () {
 			window.onload = function () {
 				var onloadTime = utils.timeFromStart();
 				utils.sendStatistic('onload', onloadTime);
 			};
+		},
+		requireReady: function () {
+			var originalMethod = require.ready;
+			require.ready = function (callback) {
+				var self = this;
+				var newCallback = function () {
+					var timeElapsed = utils.timeFromStart();
+					utils.sendStatistic('requireready', timeElapsed);
+					callback.call(self);
+				};
+				originalMethod.call(this, newCallback);
+			}
 		}
 	}
 
