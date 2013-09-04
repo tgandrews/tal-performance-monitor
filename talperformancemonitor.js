@@ -16,16 +16,19 @@
 		},
 		timeFromStart: function () {
 			return new Date() - startTime;
-		},
-		registerWindowOnLoad: function () {
-			var self = this;
-			window.onload = function () {
-				var onloadTime = self.timeFromStart();
-				self.sendStatistic('onload', onloadTime);
-			}
-		},
+		}
+	};
+
+	var statEvents = {
 		registerCallbacksForStatistics: function () {
-			this.registerWindowOnLoad();
+			this.windowOnLoad();
+			this.applicationStart();
+		},
+		windowOnLoad: function () {
+			window.onload = function () {
+				var onloadTime = utils.timeFromStart();
+				utils.sendStatistic('onload', onloadTime);
+			};
 		}
 	}
 
@@ -34,7 +37,7 @@
 			config.server = userConfig.server
 		}
 
-		utils.registerCallbacksForStatistics();
+		statEvents.registerCallbacksForStatistics();
 	} 
 
 	window.tpm = tpm;
