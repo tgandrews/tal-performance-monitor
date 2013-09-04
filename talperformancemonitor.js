@@ -55,6 +55,23 @@
 						utils.sendStatistic('applicationstart', timeElapsed);
 					}
 				}
+				else if (name === 'antie/devices/browserdevice') {
+					var originalCreateElement = object.prototype._createElement;
+					object.prototype._createElement = function (tagName) {
+						var element = originalCreateElement.apply(this, arguments)
+						if (tagName === 'video') {
+							var loadstartTime;
+							element.addEventListener('loadstart', function () {
+								loadstartTime = new Date();
+							})
+							element.addEventListener('canplay', function () {
+								var timeElapsed = new Date() - loadstartTime;
+								utils.sendStatistic('canplay', timeElapsed);
+							})
+						}
+						return element;
+					}
+				}
 				return object;
 			}
 		}
