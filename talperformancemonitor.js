@@ -23,6 +23,7 @@
 		registerCallbacksForStatistics: function () {
 			this.windowOnLoad();
 			this.requireReady();
+			this.interceptRequire();
 		},
 		windowOnLoad: function () {
 			window.onload = function () {
@@ -40,6 +41,21 @@
 					callback.call(self);
 				};
 				originalMethod.call(this, newCallback);
+			}
+		},
+		interceptRequire: function () {
+			var originalMethod = require.execCb;
+			require.execCb = function (name, method, args) {
+				var object = originalMethod.apply(this, arguments);
+				if (name === 'antie/application') {
+					originalReady = object.prototype.ready;
+					object.prototype.ready =  function () {
+						originalReady.apply(this, arguments);
+						var timeElapsed = utils.timeFromStart();
+						utils.sendStatistic('applicationstart', timeElapsed);
+					}
+				}
+				return object;
 			}
 		}
 	}
