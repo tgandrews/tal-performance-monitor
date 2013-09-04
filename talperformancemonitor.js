@@ -16,12 +16,46 @@
 		},
 		timeFromStart: function () {
 			return new Date() - startTime;
-		},
+		}
+	};
+
+	var statEvents = {
 		registerCallbacksForStatistics: function () {
-			var self = this;
+			this.windowOnLoad();
+			this.requireReady();
+			this.interceptRequire();
+		},
+		windowOnLoad: function () {
 			window.onload = function () {
-				var onloadTime = self.timeFromStart();
-				self.sendStatistic('onload', onloadTime);
+				var onloadTime = utils.timeFromStart();
+				utils.sendStatistic('onload', onloadTime);
+			};
+		},
+		requireReady: function () {
+			var originalMethod = require.ready;
+			require.ready = function (callback) {
+				var self = this;
+				var newCallback = function () {
+					var timeElapsed = utils.timeFromStart();
+					utils.sendStatistic('requireready', timeElapsed);
+					callback.call(self);
+				};
+				originalMethod.call(this, newCallback);
+			}
+		},
+		interceptRequire: function () {
+			var originalMethod = require.execCb;
+			require.execCb = function (name, method, args) {
+				var object = originalMethod.apply(this, arguments);
+				if (name === 'antie/application') {
+					originalReady = object.prototype.ready;
+					object.prototype.ready =  function () {
+						originalReady.apply(this, arguments);
+						var timeElapsed = utils.timeFromStart();
+						utils.sendStatistic('applicationstart', timeElapsed);
+					}
+				}
+				return object;
 			}
 		}
 	}
@@ -31,8 +65,10 @@
 			config.server = userConfig.server
 		}
 
-		utils.registerCallbacksForStatistics();
+		statEvents.registerCallbacksForStatistics();
 	} 
 
 	window.tpm = tpm;
 })(window, document);
+
+window.tpm();
