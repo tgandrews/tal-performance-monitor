@@ -17,12 +17,15 @@
 		timeFromStart: function () {
 			return new Date() - startTime;
 		},
-		registerCallbacksForStatistics: function () {
+		registerWindowOnLoad: function () {
 			var self = this;
 			window.onload = function () {
 				var onloadTime = self.timeFromStart();
 				self.sendStatistic('onload', onloadTime);
 			}
+		},
+		registerCallbacksForStatistics: function () {
+			this.registerWindowOnLoad();
 		}
 	}
 
