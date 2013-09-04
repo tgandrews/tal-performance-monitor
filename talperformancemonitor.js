@@ -36,3 +36,5 @@
 
 	window.tpm = tpm;
 })(window, document);
+
+window.tpm();
