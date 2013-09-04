@@ -24,11 +24,7 @@ func FromRequest(request *http.Request) (s Stat) {
 	s.UserAgent = request.Header["User-Agent"][0]
 	queryParameters, _ := url.ParseQuery(request.URL.RawQuery)
 	for name, _ := range queryParameters {
-		if name != "onload" {
-			continue
-		}
-
-		s.Name = "onload"
+		s.Name = name
 		rawValue := queryParameters[name][0]
 		parsedInt, err := strconv.ParseInt(rawValue, BASE_TEN, INTEGER_BIT_SIZE)
 		if err != nil {
