@@ -48,7 +48,7 @@
 			require.execCb = function (name, method, args) {
 				var object = originalMethod.apply(this, arguments);
 				if (name === 'antie/application') {
-					originalReady = object.prototype.ready;
+					var originalReady = object.prototype.ready;
 					object.prototype.ready =  function () {
 						originalReady.apply(this, arguments);
 						var timeElapsed = utils.timeFromStart();
