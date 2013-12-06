@@ -2,7 +2,7 @@
 	var startTime = new Date();
 
 	var config = {
-		server : 'localhost:3000'
+		server : '10.10.14.27:3000'
 	}; 
 
 	var utils = {
@@ -12,7 +12,7 @@
 			statsCallScript.type = 'text/javascript';
 			statsCallScript.src = 'http://' + config.server + '?' + statName + '=' + statValue;
 			body.appendChild(statsCallScript);
-			console.log('Sent: ' + statName + ' ' + statValue);
+			// console.log('Sent: ' + statName + ' ' + statValue);
 		},
 		timeFromStart: function () {
 			return new Date() - startTime;
@@ -70,6 +70,20 @@
 							})
 						}
 						return element;
+					}
+				}
+				else if (name === 'bigscreen/controllers/homecontroller') {
+					var originalAddFrameListeners = object.prototype._addFrameListeners;
+					var beforerenderDate;
+					object.prototype._addFrameListeners = function () {
+						originalAddFrameListeners.apply(this, arguments);
+						this._frameset.getContentFrame().addEventListener('beforerender', function () {
+							beforerenderDate = new Date();
+						});
+						this._frameset.getContentFrame().addEventListener('aftershow', function() {
+							var timefrombeforerender = new Date() - beforerenderDate;
+							utils.sendStatistic('homecontentcontroller-br2as', timefrombeforerender);
+						})
 					}
 				}
 				return object;

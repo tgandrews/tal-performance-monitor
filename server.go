@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -27,4 +28,6 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	log.Println("Sending stat to statsd")
 	statsdClient.Timing(stat.Name, int64(stat.Value))
 	log.Println("Timing sent to statsd")
+	w.Header().Set("Content-Type", "text/javascript; charset=utf-8")
+	fmt.Fprintf(w, ";")
 }
