@@ -25,9 +25,9 @@ func main() {
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	stat := stat.FromRequest(r)
 	log.Println(stat.String())
-	log.Println("Sending stat to statsd")
+	//log.Println("Sending stat to statsd")
 	statsdClient.Timing(stat.Name, int64(stat.Value))
-	log.Println("Timing sent to statsd")
+	//log.Println("Timing sent to statsd")
 	w.Header().Set("Content-Type", "text/javascript; charset=utf-8")
 	fmt.Fprintf(w, ";")
 }
