@@ -55,23 +55,23 @@
 						utils.sendStatistic('applicationstart', timeElapsed);
 					}
 				}
-				else if (name === 'antie/devices/browserdevice') {
-					var originalCreateElement = object.prototype._createElement;
-					object.prototype._createElement = function (tagName) {
-						var element = originalCreateElement.apply(this, arguments)
-						if (tagName === 'video') {
-							var loadstartTime;
-							element.addEventListener('loadstart', function () {
-								loadstartTime = new Date();
-							})
-							element.addEventListener('canplay', function () {
-								var timeElapsed = new Date() - loadstartTime;
-								utils.sendStatistic('canplay', timeElapsed);
-							})
-						}
-						return element;
-					}
-				}
+				// else if (name === 'antie/devices/browserdevice') {
+				// 	var originalCreateElement = object.prototype._createElement;
+				// 	object.prototype._createElement = function (tagName) {
+				// 		var element = originalCreateElement.apply(this, arguments)
+				// 		if (tagName === 'video') {
+				// 			var loadstartTime;
+				// 			element.addEventListener('loadstart', function () {
+				// 				loadstartTime = new Date();
+				// 			})
+				// 			element.addEventListener('canplay', function () {
+				// 				var timeElapsed = new Date() - loadstartTime;
+				// 				utils.sendStatistic('canplay', timeElapsed);
+				// 			})
+				// 		}
+				// 		return element;
+				// 	}
+				// }
 				else if (name === 'bigscreen/controllers/homecontroller') {
 					var originalAddFrameListeners = object.prototype._addFrameListeners;
 					var beforerenderDate;
@@ -80,7 +80,14 @@
 						this._frameset.getContentFrame().addEventListener('beforerender', function () {
 							beforerenderDate = new Date();
 						});
-						this._frameset.getContentFrame().addEventListener('aftershow', function() {
+						this._frameset.getContentFrame().addEventListener('databound', function() {
+							utils.sendStatistic('Hello',1);
+							try {
+								document.getElementById('homeContentContainer_WidgetStrip').lastChild.offsetLeft;
+							}
+							catch (e) {
+								window.console.log(e);
+							}
 							var timefrombeforerender = new Date() - beforerenderDate;
 							utils.sendStatistic('homecontentcontroller-br2as', timefrombeforerender);
 						})

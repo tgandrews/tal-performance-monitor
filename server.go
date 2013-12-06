@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/tgandrews/tal-performance-monitor/stat"
+	"./stat"
 	"github.com/tgandrews/gostats"
 )
 
