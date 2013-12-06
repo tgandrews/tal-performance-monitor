@@ -36,5 +36,5 @@ func FromRequest(request *http.Request) (s Stat) {
 }
 
 func (s *Stat) String() (string) {
-	return fmt.Sprintf("Name: %s\r\nValue: %d\r\nUser Agent: %s", s.Name, s.Value, s.UserAgent)
+	return fmt.Sprintf("Name: %s | Value: %d | User Agent: %s", s.Name, s.Value, s.UserAgent)
 }
