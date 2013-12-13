@@ -105,41 +105,41 @@
 							catch (e) {
 								window.console.log(e);
 							}
-                        this._frameset.getContentFrame().addEventListener('aftershow', function () {
-							var timefrombeforerender = new Date() - beforerenderDate;
-							utils.sendStatistic('homecontentcontroller-br2as', timefrombeforerender);
-						});
-					};
-				} else if (name === 'antie/widgets/carousel/binder' || name === 'bigscreen/antietemp/widgets/carousel/binder') {
-                    var original = object.prototype._getCallbacks;
-                    object.prototype._getCallbacks = function (widget, processItemFn, postBindFn) {
-                        var callbacks = original.call(this, widget, processItemFn, postBindFn);
-                        var originalOnSuccess = callbacks.onSuccess;
-                        callbacks.onSuccess = function (data) {
-                            var start = new Date();
-                            originalOnSuccess(data);
+							this._frameset.getContentFrame().addEventListener('aftershow', function () {
+								var timefrombeforerender = new Date() - beforerenderDate;
+								utils.sendStatistic('homecontentcontroller-br2as', timefrombeforerender);
+							});
+						};
+					} else if (name === 'antie/widgets/carousel/binder' || name === 'bigscreen/antietemp/widgets/carousel/binder') {
+						var original = object.prototype._getCallbacks;
+						object.prototype._getCallbacks = function (widget, processItemFn, postBindFn) {
+							var callbacks = original.call(this, widget, processItemFn, postBindFn);
+							var originalOnSuccess = callbacks.onSuccess;
+							callbacks.onSuccess = function (data) {
+								var start = new Date();
+								originalOnSuccess(data);
 
-                            var forceUpdate = window.getComputedStyle(widget.outputElement, null).width;
-                            var end = new Date();
-                            utils.sendStatistic('bind_success_time_for' + widget.id.replace(/[ -]/, '_'), end - start);
-                        };
-                        return callbacks;
-                    };
-                }
-				return object;
-			};
-		}
-	};
+								var forceUpdate = window.getComputedStyle(widget.outputElement, null).width;
+								var end = new Date();
+								utils.sendStatistic('bind_success_time_for' + widget.id.replace(/[ -]/, '_'), end - start);
+							};
+							return callbacks;
+						};
+					}
+					return object;
+				};
+			}
+		};
 
-	var tpm = function (userConfig) {
-		if (userConfig && userConfig.server) {
-			config.server = userConfig.server
-		}
+		var tpm = function (userConfig) {
+			if (userConfig && userConfig.server) {
+				config.server = userConfig.server
+			}
 
-		statEvents.registerCallbacksForStatistics();
-	} 
+			statEvents.registerCallbacksForStatistics();
+		} 
 
-	window.tpm = tpm;
-})(window, document);
+		window.tpm = tpm;
+	})(window, document);
 
-window.tpm();
+	window.tpm();
