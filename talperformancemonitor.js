@@ -2,7 +2,7 @@
 	var startTime = new Date();
 
 	var config = {
-		server : '10.10.14.27:3000'
+		server : '10.10.14.22:3000'
 	}; 
 
 	var utils = {
@@ -12,7 +12,7 @@
 			statsCallScript.type = 'text/javascript';
 			statsCallScript.src = 'http://' + config.server + '?' + statName + '=' + statValue;
 			body.appendChild(statsCallScript);
-			// console.log('Sent: ' + statName + ' ' + statValue);
+			//console.log('Sent: ' + statName + ' ' + statValue);
 		},
 		timeFromStart: function () {
 			return new Date() - startTime;
@@ -53,24 +53,24 @@
 						originalReady.apply(this, arguments);
 						var timeElapsed = utils.timeFromStart();
 						utils.sendStatistic('applicationstart', timeElapsed);
-					}
+					};
 				}
 				else if (name === 'antie/devices/browserdevice') {
 					var originalCreateElement = object.prototype._createElement;
 					object.prototype._createElement = function (tagName) {
-						var element = originalCreateElement.apply(this, arguments)
+						var element = originalCreateElement.apply(this, arguments);
 						if (tagName === 'video') {
 							var loadstartTime;
 							element.addEventListener('loadstart', function () {
 								loadstartTime = new Date();
-							})
+							});
 							element.addEventListener('canplay', function () {
 								var timeElapsed = new Date() - loadstartTime;
 								utils.sendStatistic('canplay', timeElapsed);
-							})
+							});
 						}
 						return element;
-					}
+					};
 				}
 				else if (name === 'bigscreen/controllers/homecontroller') {
 					var originalAddFrameListeners = object.prototype._addFrameListeners;
@@ -80,16 +80,31 @@
 						this._frameset.getContentFrame().addEventListener('beforerender', function () {
 							beforerenderDate = new Date();
 						});
-						this._frameset.getContentFrame().addEventListener('aftershow', function() {
+						this._frameset.getContentFrame().addEventListener('databound', function () {
 							var timefrombeforerender = new Date() - beforerenderDate;
 							utils.sendStatistic('homecontentcontroller-br2as', timefrombeforerender);
-						})
-					}
-				}
+						});
+					};
+				} else if (name === 'antie/widgets/carousel/binder' || name === 'bigscreen/antietemp/widgets/carousel/binder') {
+                    var original = object.prototype._getCallbacks;
+                    object.prototype._getCallbacks = function (widget, processItemFn, postBindFn) {
+                        var callbacks = original.call(this, widget, processItemFn, postBindFn);
+                        var originalOnSuccess = callbacks.onSuccess;
+                        callbacks.onSuccess = function (data) {
+                            var start = new Date();
+                            originalOnSuccess(data);
+
+                            var forceUpdate = window.getComputedStyle(widget.outputElement, null).width;
+                            var end = new Date();
+                            utils.sendStatistic('bind_success_time_for' + widget.id.replace(/[ -]/, '_'), end - start);
+                        };
+                        return callbacks;
+                    };
+                }
 				return object;
-			}
+			};
 		}
-	}
+	};
 
 	var tpm = function (userConfig) {
 		if (userConfig && userConfig.server) {
