@@ -55,6 +55,23 @@
 						utils.sendStatistic('applicationstart', timeElapsed);
 					};
 				}
+				// else if (name === 'antie/devices/browserdevice') {
+				// 	var originalCreateElement = object.prototype._createElement;
+				// 	object.prototype._createElement = function (tagName) {
+				// 		var element = originalCreateElement.apply(this, arguments)
+				// 		if (tagName === 'video') {
+				// 			var loadstartTime;
+				// 			element.addEventListener('loadstart', function () {
+				// 				loadstartTime = new Date();
+				// 			})
+				// 			element.addEventListener('canplay', function () {
+				// 				var timeElapsed = new Date() - loadstartTime;
+				// 				utils.sendStatistic('canplay', timeElapsed);
+				// 			})
+				// 		}
+				// 		return element;
+				// 	}
+				// }
 				else if (name === 'antie/devices/browserdevice') {
 					var originalCreateElement = object.prototype._createElement;
 					object.prototype._createElement = function (tagName) {
@@ -80,41 +97,49 @@
 						this._frameset.getContentFrame().addEventListener('beforerender', function () {
 							beforerenderDate = new Date();
 						});
-                        this._frameset.getContentFrame().addEventListener('aftershow', function () {
-							var timefrombeforerender = new Date() - beforerenderDate;
-							utils.sendStatistic('homecontentcontroller-br2as', timefrombeforerender);
-						});
-					};
-				} else if (name === 'antie/widgets/carousel/binder' || name === 'bigscreen/antietemp/widgets/carousel/binder') {
-                    var original = object.prototype._getCallbacks;
-                    object.prototype._getCallbacks = function (widget, processItemFn, postBindFn) {
-                        var callbacks = original.call(this, widget, processItemFn, postBindFn);
-                        var originalOnSuccess = callbacks.onSuccess;
-                        callbacks.onSuccess = function (data) {
-                            var start = new Date();
-                            originalOnSuccess(data);
+						this._frameset.getContentFrame().addEventListener('databound', function() {
+							utils.sendStatistic('Hello',1);
+							try {
+								document.getElementById('homeContentContainer_WidgetStrip').lastChild.offsetLeft;
+							}
+							catch (e) {
+								window.console.log(e);
+							}
+							this._frameset.getContentFrame().addEventListener('aftershow', function () {
+								var timefrombeforerender = new Date() - beforerenderDate;
+								utils.sendStatistic('homecontentcontroller-br2as', timefrombeforerender);
+							});
+						};
+					} else if (name === 'antie/widgets/carousel/binder' || name === 'bigscreen/antietemp/widgets/carousel/binder') {
+						var original = object.prototype._getCallbacks;
+						object.prototype._getCallbacks = function (widget, processItemFn, postBindFn) {
+							var callbacks = original.call(this, widget, processItemFn, postBindFn);
+							var originalOnSuccess = callbacks.onSuccess;
+							callbacks.onSuccess = function (data) {
+								var start = new Date();
+								originalOnSuccess(data);
 
-                            var forceUpdate = window.getComputedStyle(widget.outputElement, null).width;
-                            var end = new Date();
-                            utils.sendStatistic('bind_success_time_for' + widget.id.replace(/[ -]/, '_'), end - start);
-                        };
-                        return callbacks;
-                    };
-                }
-				return object;
-			};
-		}
-	};
+								var forceUpdate = window.getComputedStyle(widget.outputElement, null).width;
+								var end = new Date();
+								utils.sendStatistic('bind_success_time_for' + widget.id.replace(/[ -]/, '_'), end - start);
+							};
+							return callbacks;
+						};
+					}
+					return object;
+				};
+			}
+		};
 
-	var tpm = function (userConfig) {
-		if (userConfig && userConfig.server) {
-			config.server = userConfig.server
-		}
+		var tpm = function (userConfig) {
+			if (userConfig && userConfig.server) {
+				config.server = userConfig.server
+			}
 
-		statEvents.registerCallbacksForStatistics();
-	} 
+			statEvents.registerCallbacksForStatistics();
+		} 
 
-	window.tpm = tpm;
-})(window, document);
+		window.tpm = tpm;
+	})(window, document);
 
-window.tpm();
+	window.tpm();
