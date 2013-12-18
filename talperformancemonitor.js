@@ -56,7 +56,7 @@
 
 					var forceUpdate = window.getComputedStyle(widget.outputElement, null).width;
 					var end = new Date();
-					utils.sendStatistic('bind_success_time_for' + widget.id.replace(/[ -]/, '_'), end - start);
+					utils.sendStatistic('bind_success_time_for_' + widget.id.replace(/[ -]/, '_'), end - start);
 				};
 				return callbacks;
 			};
@@ -93,7 +93,6 @@
 		interceptRequire: function () {
 			var originalMethod = require.execCb;
 			require.execCb = function (name, method, args) {
-				console.log(name);
 				var object = originalMethod.apply(this, arguments);
 				for (var prop in talObjectModifications) {
 					if (talObjectModifications.hasOwnProperty(prop)) {
