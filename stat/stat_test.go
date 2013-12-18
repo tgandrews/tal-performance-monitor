@@ -43,7 +43,7 @@ func TestStringReturnsTheExpectedResult (t *testing.T) {
 	request := buildRequest(t)
 	stat :=  FromRequest(request)
 
-	expectedString := "Name: onload\r\nValue: 200\r\nUser Agent: Dummy;user;agent"
+	expectedString := "Name: onload | Value: 200 | User Agent: Dummy;user;agent"
 	result := stat.String()
 	if (stat.String() != expectedString) {
 		t.Fatalf("Expected %s but found %s", expectedString, result)
