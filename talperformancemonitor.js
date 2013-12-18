@@ -19,6 +19,53 @@
 		}
 	};
 
+	var talObjectModifications = {
+		'antie/application': function (object) {
+			var originalReady = object.prototype.ready;
+			object.prototype.ready =  function () {
+				originalReady.apply(this, arguments);
+				var timeElapsed = utils.timeFromStart();
+				utils.sendStatistic('applicationstart', timeElapsed);
+			};
+		},
+		'antie/devices/browserdevice': function (object) {
+			var originalCreateElement = object.prototype._createElement;
+			object.prototype._createElement = function (tagName) {
+				var element = originalCreateElement.apply(this, arguments);
+				if (tagName === 'video') {
+					var loadstartTime;
+					element.addEventListener('loadstart', function () {
+						loadstartTime = new Date();
+					});
+					element.addEventListener('canplay', function () {
+						var timeElapsed = new Date() - loadstartTime;
+						utils.sendStatistic('canplay', timeElapsed);
+					});
+				}
+				return element;
+			};
+		},
+		'antie/widgets/carousel/binder': function (object) {
+			var original = object.prototype._getCallbacks;
+			object.prototype._getCallbacks = function (widget, processItemFn, postBindFn) {
+				var callbacks = original.call(this, widget, processItemFn, postBindFn);
+				var originalOnSuccess = callbacks.onSuccess;
+				callbacks.onSuccess = function (data) {
+					var start = new Date();
+					originalOnSuccess(data);
+
+					var forceUpdate = window.getComputedStyle(widget.outputElement, null).width;
+					var end = new Date();
+					utils.sendStatistic('bind_success_time_for' + widget.id.replace(/[ -]/, '_'), end - start);
+				};
+				return callbacks;
+			};
+		},
+		'bigscreen/antietemp/widgets/carousel/binder': function (object) {
+			this['antie/widgets/carousel/binder'](object);
+		}
+	};
+
 	var statEvents = {
 		registerCallbacksForStatistics: function () {
 			this.windowOnLoad();
@@ -46,86 +93,18 @@
 		interceptRequire: function () {
 			var originalMethod = require.execCb;
 			require.execCb = function (name, method, args) {
+				console.log(name);
 				var object = originalMethod.apply(this, arguments);
-				if (name === 'antie/application') {
-					var originalReady = object.prototype.ready;
-					object.prototype.ready =  function () {
-						originalReady.apply(this, arguments);
-						var timeElapsed = utils.timeFromStart();
-						utils.sendStatistic('applicationstart', timeElapsed);
-					};
-				}
-				else if (name === 'antie/devices/browserdevice') {
-					var originalCreateElement = object.prototype._createElement;
-					object.prototype._createElement = function (tagName) {
-						var element = originalCreateElement.apply(this, arguments);
-						if (tagName === 'video') {
-							var loadstartTime;
-							element.addEventListener('loadstart', function () {
-								loadstartTime = new Date();
-							});
-							element.addEventListener('canplay', function () {
-								var timeElapsed = new Date() - loadstartTime;
-								utils.sendStatistic('canplay', timeElapsed);
-							});
+				for (var prop in talObjectModifications) {
+					if (talObjectModifications.hasOwnProperty(prop)) {
+						if (name === prop) {
+							talObjectModifications[prop](object);
 						}
-						return element;
-					};
-				}
-				else if (name === 'bigscreen/controllers/homecontroller') {
-					var originalAddFrameListeners = object.prototype._addFrameListeners;
-					var beforerenderDate;
-					object.prototype._addFrameListeners = function () {
-						originalAddFrameListeners.apply(this, arguments);
-						this._frameset.getContentFrame().addEventListener('beforerender', function () {
-							beforerenderDate = new Date();
-						});
-						this._frameset.getContentFrame().addEventListener('databound', function() {
-							utils.sendStatistic('Hello',1);
-							try {
-								document.getElementById('homeContentContainer_WidgetStrip').lastChild.offsetLeft;
-							}
-							catch (e) {
-								window.console.log(e);
-							}
-							this._frameset.getContentFrame().addEventListener('aftershow', function () {
-								var timefrombeforerender = new Date() - beforerenderDate;
-								utils.sendStatistic('homecontentcontroller-br2as', timefrombeforerender);
-							});
-						});
-					};
-				} 
-				else if (name === 'antie/widgets/carousel/binder' || name === 'bigscreen/antietemp/widgets/carousel/binder') {
-					var original = object.prototype._getCallbacks;
-					object.prototype._getCallbacks = function (widget, processItemFn, postBindFn) {
-						var callbacks = original.call(this, widget, processItemFn, postBindFn);
-						var originalOnSuccess = callbacks.onSuccess;
-						callbacks.onSuccess = function (data) {
-							var start = new Date();
-							originalOnSuccess(data);
-
-							var forceUpdate = window.getComputedStyle(widget.outputElement, null).width;
-							var end = new Date();
-							utils.sendStatistic('bind_success_time_for' + widget.id.replace(/[ -]/, '_'), end - start);
-						};
-						return callbacks;
-					};
+					}
 				}
 				return object;
 			};
 		}
-	};
-
-	var talObjectModifications = {
-		'antie/application': function () {
-			var originalReady = object.prototype.ready;
-			object.prototype.ready =  function () {
-				originalReady.apply(this, arguments);
-				var timeElapsed = utils.timeFromStart();
-				utils.sendStatistic('applicationstart', timeElapsed);
-			};
-		},
-		
 	};
 
 	var tpm = function (userConfig) {
