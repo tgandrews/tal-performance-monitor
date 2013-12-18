@@ -19,6 +19,7 @@ const (
 )
 
 var statsdClient *gostats.StatsdClient
+var mongodbSession *mgo.Session
 var mongoDB *mgo.Database
 
 var verbose bool
@@ -26,6 +27,14 @@ var port int
 var sendToStatsD bool
 
 func main() {
+	parseCommandLine()
+	setUpMongoDB()
+	defer mongodbSession.Close()
+	setUpStatsD()
+	startHttpListener()
+}
+
+func parseCommandLine() {
 	flag.IntVar(&port, "port", 3000, "Port for the server to listen")
 	flag.BoolVar(&verbose, "verbose", false, "Set true to see all stats received")
 	flag.BoolVar(&sendToStatsD, "statsd", false, "Set to true to send stats to StatsD")
@@ -37,22 +46,31 @@ func main() {
 	if sendToStatsD {
 		log.Println("Sending to StatsD enabled")
 	}
+}
 
-	convertedPort := ":" + strconv.Itoa(port)
-	log.Printf("Starting server on port %s", convertedPort)
-	http.HandleFunc("/", handleRequest)
-
+func setUpStatsD() {
 	if sendToStatsD {
 		statsdClient = gostats.New("localhost", 8125)
 	}
+}
 
+func setUpMongoDB() {
+	if verbose {
+		log.Println("Connectiong to MongoDB...")
+	}
 	mongodbSession, err := mgo.Dial("localhost")
 	if err != nil {
 		panic(err)
 	}
-	defer mongodbSession.Close()
 
 	mongoDB = mongodbSession.DB(MONGODB_DATABASE)
+	log.Printf("...conected to: %s", MONGODB_DATABASE)
+}
+
+func startHttpListener() {
+	convertedPort := ":" + strconv.Itoa(port)
+	log.Printf("Starting server on port %s", convertedPort)
+	http.HandleFunc("/", handleRequest)
 
 	log.Fatal(http.ListenAndServe(convertedPort, nil))
 }
