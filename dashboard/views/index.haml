@@ -1,8 +1,10 @@
 %html
 	%head
-		%title TAL
+		%title TAL dashboard
 	%body
-		%h1 TAL statistics
+		%a{:href => "/"}
+			%h1 TAL statistics
+		
 		%ul
 		- all_stats.uniq{|s| s["name"]}.each do |stat| 
 			%li
