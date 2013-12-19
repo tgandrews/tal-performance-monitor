@@ -1,20 +1,26 @@
 %html
 	%head
 		%title TAL dashboard
-		%script{ :src => "/js/Chart.min.js" }
+		%script{ :src => "/js/Chart.min.js", :type => "text/javascript" }
 	%body
 		%a{:href => "/"}
 			%h1 TAL statistics
+		
 		%h1= stat_name
 
-		%table
-			%tr
-				%th Value
-				%th Date
-				%th Application
-			- all_stats.each do |stat|
-				%tr
-					%td= stat["value"]
-					%td= stat["date"]
-					%td= stat["referer"]
+		%canvas{:id => "chart",  :width => 500, :height => 500}
 
+		:javascript
+			var context = document.getElementById("chart").getContext("2d");
+			var data = {
+				labels: [#{dates}],
+				datasets: [{
+					fillColor : "rgba(220,220,220,0.5)",
+					strokeColor : "rgba(220,220,220,1)",
+					pointColor : "rgba(220,220,220,1)",
+					pointStrokeColor : "#fff",
+					data : [#{values}]
+				}]
+			};
+
+			new Chart(context).Line(data)
