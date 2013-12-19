@@ -1,0 +1,18 @@
+%html
+	%head
+		%title TAL
+	%body
+		%h1 TAL statistics
+		%table
+			%tr
+				%th Statistic name
+				%th	Value
+				%th Date
+				%th Referer
+			- all_stats.each do |stat| 
+				%tr
+					%td= stat["name"]
+					%td= stat["value"]
+					%td= stat["date"]
+					%td= stat["referer"]
+
