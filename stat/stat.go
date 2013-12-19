@@ -15,11 +15,12 @@ const (
 )
 
 type Stat struct {
-	Name      string
-	Value     int
-	UserAgent string
-	Date      time.Time
-	Referer   string
+	Name       string
+	Value      int
+	UserAgent  string
+	Date       time.Time
+	Referer    string
+	AppVersion string
 }
 
 func FromRequest(request *http.Request) (s Stat) {
@@ -34,6 +35,8 @@ func FromRequest(request *http.Request) (s Stat) {
 		if name == "date" {
 			parsedInt := convertStringToInt(rawValue)
 			s.Date = time.Unix(parsedInt, 0)
+		} else if name == "appversion" {
+			s.AppVersion = rawValue
 		} else {
 			s.Name = name
 			parsedInt := convertStringToInt(rawValue)
