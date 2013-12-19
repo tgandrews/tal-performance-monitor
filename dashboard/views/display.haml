@@ -1,6 +1,7 @@
 %html
 	%head
 		%title TAL dashboard
+		%script{ :src => "/js/Chart.min.js" }
 	%body
 		%a{:href => "/"}
 			%h1 TAL statistics
@@ -16,3 +17,4 @@
 					%td= stat["value"]
 					%td= stat["date"]
 					%td= stat["referer"]
+
