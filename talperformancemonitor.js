@@ -10,7 +10,8 @@
 			var body = document.getElementsByTagName('body')[0];
 			var statsCallScript = document.createElement('script');
 			statsCallScript.type = 'text/javascript';
-			statsCallScript.src = 'http://' + config.server + '?' + statName + '=' + statValue;
+			var unixTime = Math.round(new Date().getTime() / 1000);
+			statsCallScript.src = 'http://' + config.server + '?' + statName + '=' + statValue + '&date=' + unixTime;
 			body.appendChild(statsCallScript);
 			// console.log('Sent: ' + statName + ' ' + statValue);
 		},
