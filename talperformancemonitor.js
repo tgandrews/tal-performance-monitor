@@ -7,11 +7,15 @@
 
 	var utils = {
 		sendStatistic: function (statName, statValue) {
+			var appVersion = window.antie.framework.applicationVersion;
+			var unixTime = Math.round(new Date().getTime() / 1000);
+
+			var url = 'http://' + config.server + '?' + statName + '=' + statValue + '&date=' + unixTime + '&appversion=' + appVersion;
+
 			var body = document.getElementsByTagName('body')[0];
 			var statsCallScript = document.createElement('script');
 			statsCallScript.type = 'text/javascript';
-			var unixTime = Math.round(new Date().getTime() / 1000);
-			statsCallScript.src = 'http://' + config.server + '?' + statName + '=' + statValue + '&date=' + unixTime;
+			statsCallScript.src = url;
 			body.appendChild(statsCallScript);
 			// console.log('Sent: ' + statName + ' ' + statValue);
 		},
