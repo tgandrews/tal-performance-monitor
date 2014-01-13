@@ -12,11 +12,30 @@ module Dashboard
 			
 			stats = get_statistics_filtered_as_array(filter)
 
-			stats_with_date = stats.select { |s| !s["date"].nil? }
-			dates = stats_with_date.map { |s| "'" + format_date(s["date"]) + "'"}.join(",")
-			values = stats_with_date.map { |s| s["value"].to_s }.join(",")
+			stats_with_version = stats.select { |s| !s["appversion"].nil? }
+			unique_versions = stats_with_version.uniq{ |s| s["appversion"] }
+			versions = unique_versions.map { |s| "'" + s["appversion"] + "'" }.join(",")
 
-			haml :display, :locals => {:stat_name => stat_name, :dates => dates, :values => values}
+			version_values = []
+			unique_versions.each do |stat|
+				version = stat["appversion"]
+				stats_for_version = stats.select { |s| s["appversion"] == version }
+				version_values.push(stats_for_version)
+			end
+
+			averages = []
+			version_values.each do |values_for_version|
+				sum = 0
+				values_for_version.each do |s|
+					sum = sum + s["value"].to_i
+				end
+				average = sum.to_f / values_for_version.size
+				averages.push(average)
+			end
+
+			values = averages.join(",")
+
+			haml :display, :locals => {:stat_name => stat_name, :versions => versions, :values => values}
 		end
 
 		def get_statistics

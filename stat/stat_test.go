@@ -74,13 +74,25 @@ func TestValueFromRefererIsFromTheRefererFieldInTheRequest(t *testing.T) {
 	}
 }
 
+func TestValueFromAppVersionPopulatesAppVersionField(t *testing.T) {
+	request := buildRequest(t)
+	stat := FromRequest(request)
+
+	expectedAppVersion := "1.0"
+	appVersion := stat.AppVersion
+
+	if appVersion != expectedAppVersion {
+		t.Fatalf("Expected %s but found %s", expectedAppVersion, appVersion)
+	}
+}
+
 func buildRequest(t *testing.T) *http.Request {
 	request := new(http.Request)
 	header := http.Header{}
 	header.Add("User-Agent", "Dummy;user;agent")
 	header.Add("Referer", "http://testapp.com")
 	request.Header = header
-	url, err := url.Parse("http://test.com?onload=200&date=1387385470")
+	url, err := url.Parse("http://test.com?onload=200&date=1387385470&appversion=1.0")
 	if err != nil {
 		t.Fatal(err)
 	}
