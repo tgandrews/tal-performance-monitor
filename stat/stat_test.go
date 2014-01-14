@@ -86,6 +86,19 @@ func TestValueFromAppVersionPopulatesAppVersionField(t *testing.T) {
 	}
 }
 
+func TestSimpleStringOutput(t *testing.T) {
+	request := buildRequest(t)
+
+	stat := FromRequest(request)
+
+	expectedOutput := "onload | 200"
+	actualOutput := stat.SimpleString()
+
+	if expectedOutput != actualOutput {
+		t.Fatalf("Expected %s but found %s",  expectedOutput, actualOutput)
+	}
+}
+
 func buildRequest(t *testing.T) *http.Request {
 	request := new(http.Request)
 	header := http.Header{}

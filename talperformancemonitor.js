@@ -21,9 +21,13 @@
 		},
 		timeFromStart: function () {
 			return new Date() - startTime;
+		},
+		formatId: function (id) {
+			return id.replace(/[ -]/, '_');
 		}
 	};
 
+	var frameCount = 0;
 	var talObjectModifications = {
 		'antie/application': function (object) {
 			var originalReady = object.prototype.ready;
@@ -61,13 +65,58 @@
 
 					var forceUpdate = window.getComputedStyle(widget.outputElement, null).width;
 					var end = new Date();
-					utils.sendStatistic('bind_success_time_for_' + widget.id.replace(/[ -]/, '_'), end - start);
+					utils.sendStatistic('bind_success_time_for_' + utils.formatId(widget.id), end - start);
 				};
 				return callbacks;
 			};
 		},
 		'bigscreen/antietemp/widgets/carousel/binder': function (object) {
 			this['antie/widgets/carousel/binder'](object);
+		},
+		'antie/lib/tween': function (TWEEN) {
+			var originalUpdate = TWEEN.update;
+			TWEEN.update = function (time) {
+				frameCount += 1;
+				originalUpdate(time);
+			}
+
+			var OriginalTween = TWEEN.Tween;
+			TWEEN.Tween = function (object) {
+				var tweenInstance = new OriginalTween(object);
+				tweenInstance.startCount = frameCount;
+
+				var onCompleteAssigner = tweenInstance.onComplete;
+
+				tweenInstance.onComplete = function (callback) {
+					var wrappedCallback = function () {
+						callback(tweenInstance)
+					}
+					onCompleteAssigner.call(tweenInstance, wrappedCallback);
+				}
+				return tweenInstance;
+			}
+		},
+		'antie/devices/anim/tween': function (object, dependencies) {
+			var Device = dependencies[0];
+
+			var originalDeviceTween = Device.prototype._tween;
+			Device.prototype._tween = function (options) {
+				var originalOnComplete = options.onComplete;
+
+				var id = options.el.id;
+				var duration = options.duration;
+
+				options.onComplete = function (tween) {
+					if (originalOnComplete) {
+						originalOnComplete();
+					}
+					if (duration > 0) {
+						var fps = (frameCount - tween.startCount) / (duration / 1000)
+						utils.sendStatistic('elementAnimationFPS_' + utils.formatId(id), fps)
+					}
+				}
+				originalDeviceTween.call(this, options)
+			}
 		}
 	};
 
@@ -102,7 +151,7 @@
 				for (var prop in talObjectModifications) {
 					if (talObjectModifications.hasOwnProperty(prop)) {
 						if (name === prop) {
-							talObjectModifications[prop](object);
+							talObjectModifications[prop](object, args);
 						}
 					}
 				}

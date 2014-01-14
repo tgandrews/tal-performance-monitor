@@ -79,6 +79,8 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	stat := stat.FromRequest(r)
 	if verbose {
 		log.Println(stat.String())
+	} else {
+		log.Println(stat.SimpleString())
 	}
 
 	if sendToStatsD {
