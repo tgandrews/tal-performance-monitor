@@ -64,7 +64,9 @@ func setUpMongoDB() {
 	}
 
 	mongoDB = mongodbSession.DB(MONGODB_DATABASE)
-	log.Printf("...conected to: %s", MONGODB_DATABASE)
+	if verbose {
+		log.Printf("...conected to: %s", MONGODB_DATABASE)
+	}
 }
 
 func startHttpListener() {
