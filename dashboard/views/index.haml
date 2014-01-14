@@ -1,0 +1,14 @@
+%html
+	%head
+		%title TAL dashboard
+	%body
+		%a{:href => "/"}
+			%h1 TAL statistics
+		
+		%ul
+		- all_stats.uniq{|s| s["name"]}.each do |stat| 
+			%li
+				%a{ :href => "/display/" + stat["name"] }
+					= stat["name"]
+				
+
