@@ -33,7 +33,7 @@ func TestValueComesFromTheQueryStringValue(t *testing.T) {
 	request := buildRequest(t)
 	stat := FromRequest(request)
 
-	expectedStatValue := 200
+	expectedStatValue := float64(200)
 
 	if stat.Value != expectedStatValue {
 		t.Fatalf("Expected %d but found %d", expectedStatValue, stat.Value)
@@ -44,7 +44,7 @@ func TestStringReturnsTheExpectedResult(t *testing.T) {
 	request := buildRequest(t)
 	stat := FromRequest(request)
 
-	expectedString := "Name: onload | Value: 200 | User Agent: Dummy;user;agent | Date: Wed Dec 18 16:51:10 GMT 2013 | Referer: http://testapp.com"
+	expectedString := "Name: onload | Value: 200.00 | User Agent: Dummy;user;agent | Date: Wed Dec 18 16:51:10 GMT 2013 | Referer: http://testapp.com"
 	result := stat.String()
 	if stat.String() != expectedString {
 		t.Fatalf("Expected %s but found %s", expectedString, result)
@@ -91,7 +91,7 @@ func TestSimpleStringOutput(t *testing.T) {
 
 	stat := FromRequest(request)
 
-	expectedOutput := "onload | 200"
+	expectedOutput := "onload | 200.00"
 	actualOutput := stat.SimpleString()
 
 	if expectedOutput != actualOutput {

@@ -16,7 +16,7 @@ const (
 
 type Stat struct {
 	Name       string
-	Value      int
+	Value      float64
 	UserAgent  string
 	Date       time.Time
 	Referer    string
@@ -39,8 +39,8 @@ func FromRequest(request *http.Request) (s Stat) {
 			s.AppVersion = rawValue
 		} else {
 			s.Name = name
-			parsedInt := convertStringToInt(rawValue)
-			s.Value = int(parsedInt)
+			parsedFloat := convertStringToFloat(rawValue)
+			s.Value = float64(parsedFloat)
 		}
 	}
 	return s
@@ -54,10 +54,18 @@ func convertStringToInt(raw string) int64 {
 	return parsedInt
 }
 
+func convertStringToFloat(raw string) float64 {
+	parsedFloat, err := strconv.ParseFloat(raw, INTEGER_BIT_SIZE)
+	if err != nil {
+		log.Print(err)
+	}
+	return parsedFloat
+}
+
 func (s *Stat) String() string {
-	return fmt.Sprintf("Name: %s | Value: %d | User Agent: %s | Date: %s | Referer: %s", s.Name, s.Value, s.UserAgent, s.Date.Format(time.UnixDate), s.Referer)
+	return fmt.Sprintf("Name: %s | Value: %6.2f | User Agent: %s | Date: %s | Referer: %s", s.Name, s.Value, s.UserAgent, s.Date.Format(time.UnixDate), s.Referer)
 }
 
 func (s *Stat) SimpleString() string {
-	return fmt.Sprintf("%s | %d", s.Name, s.Value)
+	return fmt.Sprintf("%s | %6.2f", s.Name, s.Value)
 }
