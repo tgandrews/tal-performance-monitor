@@ -83,6 +83,7 @@
 			var OriginalTween = TWEEN.Tween;
 			TWEEN.Tween = function (object) {
 				var tweenInstance = new OriginalTween(object);
+				tweenInstance.properties = object;
 				tweenInstance.startCount = frameCount;
 
 				var onCompleteAssigner = tweenInstance.onComplete;
@@ -112,7 +113,16 @@
 					}
 					if (duration > 0) {
 						var fps = (frameCount - tween.startCount) / (duration / 1000)
-						utils.sendStatistic('elementAnimationFPS_' + utils.formatId(id), fps)
+
+						var propNames = [];
+						for (var prop in tween.properties) {
+							if (tween.properties.hasOwnProperty(prop)) {
+								propNames.push(prop);
+							}
+						}
+						var names = propNames.join('_')
+
+						utils.sendStatistic('elementAnimationFPS_' + utils.formatId(id) + '_' + names, fps)
 					}
 				}
 				originalDeviceTween.call(this, options)
