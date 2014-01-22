@@ -95,15 +95,16 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	if sendToStatsD {
 		statsdClient.Timing(stat.Name, int64(stat.Value))
 	}
+	if sendToMonogDB {
+		statsCollection := mongoDB.C(MONGODB_STATS_COLLECTION)
 
-	statsCollection := mongoDB.C(MONGODB_STATS_COLLECTION)
-
-	err := statsCollection.Insert(stat)
-	if err != nil {
-		log.Println(err)
-	}
-	if verbose {
-		log.Printf("Stat written to MongoDB %s.%s", MONGODB_DATABASE, MONGODB_STATS_COLLECTION)
+		err := statsCollection.Insert(stat)
+		if err != nil {
+			log.Println(err)
+		}
+		if verbose {
+			log.Printf("Stat written to MongoDB %s.%s", MONGODB_DATABASE, MONGODB_STATS_COLLECTION)
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/javascript; charset=utf-8")
