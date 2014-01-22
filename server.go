@@ -25,6 +25,7 @@ var mongoDB *mgo.Database
 var verbose bool
 var port int
 var sendToStatsD bool
+var sendToMonogDB bool
 
 func main() {
 	parseCommandLine()
@@ -38,6 +39,7 @@ func parseCommandLine() {
 	flag.IntVar(&port, "port", 3000, "Port for the server to listen")
 	flag.BoolVar(&verbose, "verbose", false, "Set true to see all stats received")
 	flag.BoolVar(&sendToStatsD, "statsd", false, "Set to true to send stats to StatsD")
+	flag.BoolVar(&sendToMonogDB, "mongodb", false, "Set to true to send to monngodb")
 	flag.Parse()
 
 	if verbose {
@@ -45,6 +47,9 @@ func parseCommandLine() {
 	}
 	if sendToStatsD {
 		log.Println("Sending to StatsD enabled")
+	}
+	if sendToMonogDB {
+		log.Println("Sending to MongoDB enabled")
 	}
 }
 
@@ -55,17 +60,19 @@ func setUpStatsD() {
 }
 
 func setUpMongoDB() {
-	if verbose {
-		log.Println("Connectiong to MongoDB...")
-	}
-	mongodbSession, err := mgo.Dial("localhost")
-	if err != nil {
-		panic(err)
-	}
+	if sendToMonogDB {
+		if verbose {
+			log.Println("Connectiong to MongoDB...")
+		}
+		mongodbSession, err := mgo.Dial("localhost")
+		if err != nil {
+			panic(err)
+		}
 
-	mongoDB = mongodbSession.DB(MONGODB_DATABASE)
-	if verbose {
-		log.Printf("...conected to: %s", MONGODB_DATABASE)
+		mongoDB = mongodbSession.DB(MONGODB_DATABASE)
+		if verbose {
+			log.Printf("...conected to: %s", MONGODB_DATABASE)
+		}
 	}
 }
 
