@@ -147,6 +147,14 @@
                 // Do our report after the attach has completed, so CRB gets the best data around this call.
                 utils.sendStatistic('keyHandler_attach', utils.timeFromStart());
             }
+        },
+        'redbuttonhtml/appui/widgets/rbhorizontalcarousel': function(object) {
+            var original = object.prototype.fadeInCollectionItemButtons;
+            object.prototype.fadeInCollectionItemButtons = function () {
+                original.call(this);
+                // Do report after the fade in animation has been kicked off, so CRB gets the best data around this call.
+                utils.sendStatistic('rbhorizontalcarousel_fadeInCollectionItemButtons', utils.timeFromStart());
+            }
         }
 	};
 
