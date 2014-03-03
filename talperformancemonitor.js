@@ -2,7 +2,7 @@
 	var startTime = new Date();
 
 	var config = {
-		server : '10.10.14.27:3000'
+		server : '10.94.12.85:3000'
 	}; 
 
 	var utils = {
@@ -127,7 +127,27 @@
 				}
 				originalDeviceTween.call(this, options)
 			}
-		}
+		},
+        'antie/widgets/widget': function (object) {
+            var original = object.prototype.bubbleEvent;
+            object.prototype.bubbleEvent = function (ev) {
+                var timeElapsed = utils.timeFromStart();
+                var id = this.id;
+                if (id.substr(0,1) == '#') {
+                    id = 'ROOT';
+                }
+                utils.sendStatistic('bubbleEvent_' + ev.type + '_' + id, timeElapsed);
+                original.call(this,ev);
+            };
+        },
+        'antie/widgets/carousel/keyhandlers/keyhandler' : function(object) {
+            var original = object.prototype.attach;
+            object.prototype.attach = function (carousel) {
+                original.call(this, carousel);
+                // Do our report after the attach has completed, so CRB gets the best data around this call.
+                utils.sendStatistic('keyHandler_attach', utils.timeFromStart());
+            }
+        }
 	};
 
 	var statEvents = {
