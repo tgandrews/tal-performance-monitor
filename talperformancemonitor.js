@@ -63,7 +63,9 @@
 					var start = new Date();
 					originalOnSuccess(data);
 
-					var forceUpdate = window.getComputedStyle(widget.outputElement, null).width;
+					if (widget.outputElement) {
+						var forceUpdate = window.getComputedStyle(widget.outputElement, null).width;
+					}
 					var end = new Date();
 					utils.sendStatistic('bind_success_time_for_' + utils.formatId(widget.id), end - start);
 				};
